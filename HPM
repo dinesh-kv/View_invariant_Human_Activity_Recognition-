@@ -1,0 +1,63 @@
+UWA3DDatasetPath_view1_2='F:\chhavi\PHD\Desktop version\phd work\MY papers\UWA3DActivity depth dataset\All views\Final_set_WholeFrames\UWA3D_complete_set\Train_view1_2_Test_view3';
+UWA3dData_view1_2 = imageDatastore(UWA3DDatasetPath_view1_2,...
+        'IncludeSubfolders',true,'LabelSource','foldernames');
+trainingImages=UWA3dData_view1_2;
+
+%keep input image 224X224
+layers = [
+    imageInputLayer([227 227 3])
+    convolution2dLayer(11,96,'Padding',1)
+   % batchNormalizationLayer
+     crossChannelNormalizationLayer(5,'K',1) 
+     reluLayer
+    maxPooling2dLayer(3,'Stride',2)
+
+    convolution2dLayer(5,256,'Padding',1)
+    %batchNormalizationLayer
+    crossChannelNormalizationLayer(5,'K',1) 
+    reluLayer
+    maxPooling2dLayer(3,'Stride',2)
+
+    convolution2dLayer(3,150,'Padding',1)
+%    batchNormalizationLayer
+crossChannelNormalizationLayer(5,'K',1) 
+    reluLayer
+
+%     convolution2dLayer(3,384,'Padding',1)
+%     batchNormalizationLayer
+%     reluLayer
+%     
+%     convolution2dLayer(3,256,'Padding',1)
+%     batchNormalizationLayer
+%     reluLayer
+%     maxPooling2dLayer(3,'Stride',2)
+%     
+    fullyConnectedLayer(2048)
+    reluLayer
+    
+    dropoutLayer(0.5)
+    
+    fullyConnectedLayer(2048)
+    reluLayer
+    
+    dropoutLayer(0.5)
+    
+    fullyConnectedLayer(30)
+    
+    softmaxLayer
+    classificationLayer
+    ];
+
+options = trainingOptions('sgdm',...
+     'CheckpointPath','C:\Users\Anand\Documents\MATLAB',...
+    'MaxEpochs',3, ...
+    'MiniBatchSize',30,...
+    'InitialLearnRate',0.001,...
+    'LearnRateDropFactor',0.3,...
+    'LearnRateDropPeriod',5,...
+    'L2Regularization',0.01,...
+    'ValidationFrequency',30,...
+    'Verbose',true,...
+    'Plots','training-progress');
+    
+net = trainNetwork(trainingImages,layers,options);
